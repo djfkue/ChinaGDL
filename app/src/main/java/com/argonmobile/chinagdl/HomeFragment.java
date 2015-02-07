@@ -181,10 +181,10 @@ public class HomeFragment extends Fragment implements VideoItemsModel.OnRequestO
             }
 
             public void bindData(VideoItem item) {
-                mTitle.setText(item.mTitle);
-                mPublishTime.setText(item.mPublishTime);
+                mTitle.setText(item.title);
+                mPublishTime.setText(item.published);
 
-                double totalSecs = item.mDuration;
+                double totalSecs = item.duration;
 
                 int hours = (int) (totalSecs / 3600);
                 int minutes = (int) ((totalSecs % 3600) / 60);
@@ -199,7 +199,7 @@ public class HomeFragment extends Fragment implements VideoItemsModel.OnRequestO
 
                 mDuration.setText(duration);
 
-                ImageLoader.getInstance().displayImage(item.mThumbnailURL, mVideoThumb,
+                ImageLoader.getInstance().displayImage(item.thumbnail, mVideoThumb,
                         ChinaGDLApplication.sDisplayOptions);
             }
         }

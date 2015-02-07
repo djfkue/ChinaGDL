@@ -19,6 +19,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +42,11 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
     private final String BASE_URL =
             "http://www.njgdg.org/testrequest.php";
 
+    private static ObjectMapper sObjectMapper = new ObjectMapper();
+
     private ArrayList<VideoItem> mVideoItems = new ArrayList<VideoItem>();
+
+    private VideoList mVideoList;
 
     private OnFetchVideoListListener mOnFetchVideoListListener;
 
@@ -56,49 +64,12 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    private void getVideoDataFromJson(String videoListJsonStr)
-            throws JSONException {
+    private void getVideoDataFromJson(String videoListJsonStr) throws IOException {
 
-        // These are the names of the JSON objects that need to be extracted.
-        final String VIDEO_LIST = "videos";
+        VideoList videoList = sObjectMapper.readValue(videoListJsonStr, VideoList.class);
+        Log.v(LOG_TAG, "Get videos: " + videoList.videos.size());
+        mVideoList = videoList;
 
-        final String VIDEO_ID = "id";
-        final String VIDEO_TITLE = "title";
-        final String VIDEO_LINK = "link";
-        final String VIDEO_THUMBNAIL = "thumbnail";
-        final String VIDEO_BIG_THUMBNAIL = "bigThumbnail";
-        final String VIDEO_DURATION = "duration";
-        final String VIDEO_CATEGORY = "category";
-        final String VIDEO_PUBLISH = "published";
-        final String VIDEO_DESCRIPTION = "description";
-        final String VIDEO_TAGS = "tags";
-        final String VIDEO_VIEW_COUNT = "view_count";
-        final String VIDEO_FAVORITE_COUNT = "favorite_count";
-        final String VIDEO_PLAYLIST_ID = "playlist_id";
-        final String VIDEO_USER_ID = "userid";
-
-        JSONObject forecastJson = new JSONObject(videoListJsonStr);
-        JSONArray videoArray = forecastJson.getJSONArray(VIDEO_LIST);
-        for(int i = 0; i < videoArray.length(); i++) {
-            VideoItem item = new VideoItem();
-            JSONObject video = videoArray.getJSONObject(i);
-            item.mId = video.getString(VIDEO_ID);
-            item.mTitle = video.getString(VIDEO_TITLE);
-            item.mThumbnailURL = video.getString(VIDEO_THUMBNAIL);
-            item.mBigThumbnailURL = video.getString(VIDEO_BIG_THUMBNAIL);
-            item.mDuration = video.getDouble(VIDEO_DURATION);
-            item.mCategory = video.getString(VIDEO_CATEGORY);
-            item.mPublishTime = video.getString(VIDEO_PUBLISH);
-            item.mDescription = video.getString(VIDEO_DESCRIPTION);
-            item.mTags = video.getString(VIDEO_TAGS);
-            item.mViewCount = video.getInt(VIDEO_VIEW_COUNT);
-            item.mFavoriteCount = video.getInt(VIDEO_FAVORITE_COUNT);
-            item.mPlayListId = video.getString(VIDEO_PLAYLIST_ID);
-            item.mUserId = video.getString(VIDEO_USER_ID);
-            mVideoItems.add(item);
-        }
-
-        Log.v(LOG_TAG, "Get videos: " + videoArray.length());
     }
 
     @Override
@@ -175,7 +146,7 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
         try {
             getVideoDataFromJson(videoListJsonStr);
             return true;
-        } catch (JSONException e) {
+        } catch (IOException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
@@ -187,6 +158,8 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (success) {
+            mVideoItems.clear();
+            mVideoItems.addAll(mVideoList.videos);
             Log.v(LOG_TAG, "onPostExecute Get videos: " + mVideoItems.size());
             if (mOnFetchVideoListListener != null) {
                 mOnFetchVideoListListener.onFetchSucceed(mVideoItems);
