@@ -69,7 +69,7 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
         final String VIDEO_BIG_THUMBNAIL = "bigThumbnail";
         final String VIDEO_DURATION = "duration";
         final String VIDEO_CATEGORY = "category";
-        final String VIDEO_PUBLICSH = "published";
+        final String VIDEO_PUBLISH = "published";
         final String VIDEO_DESCRIPTION = "description";
         final String VIDEO_TAGS = "tags";
         final String VIDEO_VIEW_COUNT = "view_count";
@@ -88,7 +88,7 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
             item.mBigThumbnailURL = video.getString(VIDEO_BIG_THUMBNAIL);
             item.mDuration = video.getDouble(VIDEO_DURATION);
             item.mCategory = video.getString(VIDEO_CATEGORY);
-            item.mPublishTime = video.getString(VIDEO_PUBLICSH);
+            item.mPublishTime = video.getString(VIDEO_PUBLISH);
             item.mDescription = video.getString(VIDEO_DESCRIPTION);
             item.mTags = video.getString(VIDEO_TAGS);
             item.mViewCount = video.getInt(VIDEO_VIEW_COUNT);
