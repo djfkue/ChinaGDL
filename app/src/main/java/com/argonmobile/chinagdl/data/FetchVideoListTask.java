@@ -136,7 +136,7 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                return null;
+                return false;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -150,14 +150,15 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                return null;
+                return false;
             }
+
             videoListJsonStr = buffer.toString();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
-            return null;
+            return false;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
