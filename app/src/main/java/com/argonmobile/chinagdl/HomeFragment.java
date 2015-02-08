@@ -199,7 +199,7 @@ public class HomeFragment extends Fragment implements VideoItemsModel.OnRequestO
 
                 mDuration.setText(duration);
 
-                ImageLoader.getInstance().displayImage(item.thumbnail, mVideoThumb,
+                ImageLoader.getInstance().displayImage(item.bigThumbnail, mVideoThumb,
                         ChinaGDLApplication.sDisplayOptions);
             }
         }

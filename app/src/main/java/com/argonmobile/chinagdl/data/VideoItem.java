@@ -20,4 +20,5 @@ public class VideoItem {
     public String playlist_id;
     public String player;
     public String userid;
+    public String playlistname;
 }
