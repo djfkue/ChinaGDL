@@ -19,14 +19,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.argonmobile.chinagdl.util.JsonUtils;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,32 +28,27 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
-public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
+public class FetchPlayListTask extends AsyncTask<Void, Void, Boolean> {
 
-    private final String LOG_TAG = FetchVideoListTask.class.getSimpleName();
+    private final String LOG_TAG = FetchPlayListTask.class.getSimpleName();
 
     private final String BASE_URL =
-            "http://www.njgdg.org/testrequest.php";
+            "http://www.njgdg.org/playlist.php";
 
-    //private static ObjectMapper sObjectMapper = new ObjectMapper();
+    private static ObjectMapper sObjectMapper = new ObjectMapper();
 
-    private ArrayList<VideoItem> mVideoItems = new ArrayList<VideoItem>();
+    private ArrayList<PlayListItem> mPlayLists = new ArrayList<PlayListItem>();
 
-    private LinkedHashMap<String, ArrayList<VideoItem>> mPlayLists = new LinkedHashMap<>();
+    private PlayList mPlayList;
 
-    private VideoList mVideoList;
+    private OnFetchPlayListListener mOnFetchPlayListListener;
 
-    private OnFetchVideoListListener mOnFetchVideoListListener;
-
-    public FetchVideoListTask() {
-        ArrayList<VideoItem> defaultPlayList = new ArrayList<VideoItem>();
-        mPlayLists.put("Other", defaultPlayList);
+    public FetchPlayListTask() {
     }
 
-    public void setOnFetchVideoListListener(OnFetchVideoListListener onFetchVideoListListener) {
-        mOnFetchVideoListListener = onFetchVideoListListener;
+    public void setOnFetchPlayListListener(OnFetchPlayListListener onFetchPlayListListener) {
+        mOnFetchPlayListListener = onFetchPlayListListener;
     }
 
     /**
@@ -72,16 +60,16 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
      */
     private void getVideoDataFromJson(String videoListJsonStr) throws IOException {
 
-        VideoList videoList = JsonUtils.parseJson(videoListJsonStr, VideoList.class);
-        Log.v(LOG_TAG, "Get videos: " + videoList.videos.size());
-        mVideoList = videoList;
+        PlayList playList = sObjectMapper.readValue(videoListJsonStr, PlayList.class);
+        Log.v(LOG_TAG, "Get videos: " + playList.playList.size());
+        mPlayList = playList;
 
     }
 
     @Override
     protected void onPreExecute() {
-        if (mOnFetchVideoListListener != null) {
-            mOnFetchVideoListListener.onFetchStart();
+        if (mOnFetchPlayListListener != null) {
+            mOnFetchPlayListListener.onFetchStart();
         }
     }
 
@@ -164,37 +152,31 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (success) {
-            mVideoItems.clear();
-            for (VideoItem videoItem : mVideoList.videos) {
-                if (videoItem.playlistname == null) {
-                    mPlayLists.get("Other").add(videoItem);
-                } else {
-                    // TODO add videos to the play list map.
-                }
-            }
-            mVideoItems.addAll(mVideoList.videos);
-            Log.v(LOG_TAG, "onPostExecute Get videos: " + mVideoItems.size());
-            if (mOnFetchVideoListListener != null) {
-                mOnFetchVideoListListener.onFetchSucceed(mVideoItems);
+            mPlayLists.clear();
+
+            mPlayLists.addAll(mPlayList.playList);
+            Log.v(LOG_TAG, "onPostExecute Get playlists: " + mPlayLists.size());
+            if (mOnFetchPlayListListener != null) {
+                mOnFetchPlayListListener.onFetchSucceed(mPlayLists);
             }
         } else {
-            if (mOnFetchVideoListListener != null) {
-                mOnFetchVideoListListener.onFetchFailed();
+            if (mOnFetchPlayListListener != null) {
+                mOnFetchPlayListListener.onFetchFailed();
             }
         }
     }
 
     @Override
     protected void onCancelled(Boolean result) {
-        if (mOnFetchVideoListListener != null) {
-            mOnFetchVideoListListener.onFetchCancelled();
+        if (mOnFetchPlayListListener != null) {
+            mOnFetchPlayListListener.onFetchCancelled();
         }
     }
 
-    public interface OnFetchVideoListListener {
+    public interface OnFetchPlayListListener {
         public void onFetchStart();
         public void onFetchFailed();
         public void onFetchCancelled();
-        public void onFetchSucceed(ArrayList<VideoItem> videoList);
+        public void onFetchSucceed(ArrayList<PlayListItem> playLists);
     }
 }
