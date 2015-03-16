@@ -169,9 +169,17 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
                 if (videoItem.playlistname == null) {
                     mPlayLists.get("Other").add(videoItem);
                 } else {
-                    // TODO add videos to the play list map.
+                    if (!mPlayLists.containsKey(videoItem.playlistname)) {
+                        ArrayList<VideoItem> playList = new ArrayList<VideoItem>();
+                        playList.add(videoItem);
+                        mPlayLists.put(videoItem.playlistname, playList);
+                    } else {
+                        mPlayLists.get(videoItem.playlistname).add(videoItem);
+                    }
                 }
             }
+
+            Log.e(LOG_TAG, "playlist size: " + mPlayLists.size());
             mVideoItems.addAll(mVideoList.videos);
             Log.v(LOG_TAG, "onPostExecute Get videos: " + mVideoItems.size());
             if (mOnFetchVideoListListener != null) {

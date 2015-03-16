@@ -102,19 +102,25 @@ public class VideoListFragment extends Fragment implements VideoItemsModel.OnReq
             @Override
             public void onRefresh() {
                 Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
-                requestVideoList();
+                if (VideoItemsModel.getInstance().isRequesting() == false) {
+                    requestVideoList();
+                }
             }
         });
 
+        if (VideoItemsModel.getInstance().getAllVideos().size() == 0) {
+            requestVideoList();
+        }
         //mSwipeRefreshLayout.setRefreshing(true);
-        //if (VideoItemsModel.getInstance().isRequesting()) {
-            // workaround to let the swipe refresh layout to show progress
-            mSwipeRefreshLayout.setProgressViewOffset(false, 0,
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
-            mSwipeRefreshLayout.setRefreshing(true);
-        //}
+        if (VideoItemsModel.getInstance().isRequesting()) {
+            if (!mSwipeRefreshLayout.isRefreshing()) {
+                // workaround to let the swipe refresh layout to show progress
+                mSwipeRefreshLayout.setProgressViewOffset(false, 0,
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+        }
 
-        requestVideoList();
     }
 
     @Override
@@ -141,6 +147,13 @@ public class VideoListFragment extends Fragment implements VideoItemsModel.OnReq
     @Override
     public void onRequestStart() {
 
+        Log.e(LOG_TAG, "onRequestStart......");
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            // workaround to let the swipe refresh layout to show progress
+            mSwipeRefreshLayout.setProgressViewOffset(false, 0,
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
     }
 
     @Override

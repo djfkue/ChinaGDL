@@ -18,7 +18,7 @@ public class VideoItemsModel {
     public static VideoItemsModel getInstance() {
         if (mInstance == null) {
             mInstance = new VideoItemsModel();
-            new FetchVideoListTask().execute();
+            //new FetchVideoListTask().execute();
         }
         return mInstance;
     }
