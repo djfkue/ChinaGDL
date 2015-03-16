@@ -107,13 +107,14 @@ public class VideoListFragment extends Fragment implements VideoItemsModel.OnReq
         });
 
         //mSwipeRefreshLayout.setRefreshing(true);
-        if (VideoItemsModel.getInstance().isRequesting()) {
+        //if (VideoItemsModel.getInstance().isRequesting()) {
             // workaround to let the swipe refresh layout to show progress
             mSwipeRefreshLayout.setProgressViewOffset(false, 0,
                     (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
             mSwipeRefreshLayout.setRefreshing(true);
-        }
+        //}
 
+        requestVideoList();
     }
 
     @Override
