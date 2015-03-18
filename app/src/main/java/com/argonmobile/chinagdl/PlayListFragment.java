@@ -19,6 +19,7 @@ import com.argonmobile.chinagdl.model.VideoItemsModel;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass.
@@ -31,7 +32,7 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private VideoListAdapter mVideoListAdapter;
+    private PlayListAdapter mPlayListsAdapter;
     private RecyclerView mRecyclerView;
 
     /**
@@ -68,7 +69,7 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_videolist, container, false);
+        View view = inflater.inflate(R.layout.fragment_playlist, container, false);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         // Set the color scheme of the SwipeRefreshLayout by providing 4 color resource ids
         mSwipeRefreshLayout.setColorSchemeResources(
@@ -86,6 +87,7 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+
         return view;
     }
 
@@ -93,9 +95,9 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mVideoListAdapter = new VideoListAdapter(VideoItemsModel.getInstance().getAllVideos());
+        mPlayListsAdapter = new PlayListAdapter(VideoItemsModel.getInstance().getPlayLists());
 
-        mRecyclerView.setAdapter(mVideoListAdapter);
+        mRecyclerView.setAdapter(mPlayListsAdapter);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -124,7 +126,6 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        VideoItemsModel.getInstance();
     }
 
     @Override
@@ -149,38 +150,67 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
     @Override
     public void onRequestSucceed() {
         mSwipeRefreshLayout.setRefreshing(false);
-        mVideoListAdapter.notifyDataSetChanged();
+        mPlayListsAdapter.notifyDataSetChanged();
     }
 
-    private class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
-        private ArrayList<VideoItem> mDataset;
-
+    private class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHolder> {
+        private LinkedHashMap<String, ArrayList<VideoItem>> mDataset;
+        private ArrayList<String> mPlayListNames;
         // Provide a reference to the views for each data item
         // Complex data items may need more than one view per item, and
         // you provide access to all the views for a data item in a view holder
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-            public ImageView mVideoThumb;
-            public TextView mTitle;
-            public TextView mPublishTime;
-            public TextView mDuration;
-
+            public TextView mPlayListName;
+            public TextView mPlayListCount;
+            public ViewGroup mVideoItemContainer;
+            public TextView mViewMore;
             // each data item is just a string in this case
             public ViewHolder(View v) {
                 super(v);
-                mVideoThumb = (ImageView) v.findViewById(R.id.video_thumb);
-                mTitle = (TextView) v.findViewById(R.id.video_title);
-                mPublishTime = (TextView) v.findViewById(R.id.video_publish_time);
-                mDuration = (TextView) v.findViewById(R.id.video_duration);
+                mPlayListName = (TextView) v.findViewById(R.id.playlist_name);
+                mPlayListCount = (TextView) v.findViewById(R.id.playlist_count);
+                mVideoItemContainer = (ViewGroup) v.findViewById(R.id.video_container);
+                mViewMore = (TextView) v.findViewById(R.id.view_more);
             }
 
             @Override
             public void onClick(View v) {
             }
 
-            public void bindData(VideoItem item) {
-                mTitle.setText(item.title);
-                mPublishTime.setText(item.published);
+            public void bindData(String playListName, ArrayList<VideoItem> items) {
+
+                int videoCount = items.size();
+                if (videoCount <= mVideoItemContainer.getChildCount()) {
+                    mViewMore.setVisibility(View.GONE);
+                } else {
+                    mViewMore.setVisibility(View.VISIBLE);
+                }
+
+                mPlayListCount.setText("" + videoCount + " videos");
+                mPlayListName.setText(playListName);
+
+                for (int i = 0; i < mVideoItemContainer.getChildCount(); i++) {
+                    if (i < videoCount) {
+                        bindVideoItem(mVideoItemContainer.getChildAt(i), items.get(i));
+                        mVideoItemContainer.getChildAt(i).setVisibility(View.VISIBLE);
+                    } else {
+                        mVideoItemContainer.getChildAt(i).setVisibility(View.GONE);
+                    }
+                }
+
+//
+            }
+
+            private void bindVideoItem(View videoItemView, VideoItem item) {
+
+                ImageView videoThumb = (ImageView) videoItemView.findViewById(R.id.video_thumb);
+                TextView title = (TextView) videoItemView.findViewById(R.id.video_title);
+                TextView publishTime = (TextView) videoItemView.findViewById(R.id.video_publish_time);
+                TextView durationView = (TextView) videoItemView.findViewById(R.id.video_duration);
+
+                title.setText(item.title);
+                publishTime.setText(item.published);
 
                 double totalSecs = item.duration;
 
@@ -195,25 +225,26 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
                     duration = String.format("%02d:%02d", minutes, seconds);
                 }
 
-                mDuration.setText(duration);
+                durationView.setText(duration);
 
-                ImageLoader.getInstance().displayImage(item.bigThumbnail, mVideoThumb,
+                ImageLoader.getInstance().displayImage(item.bigThumbnail, videoThumb,
                         ChinaGDLApplication.sDisplayOptions);
             }
         }
 
         // Provide a suitable constructor (depends on the kind of dataset)
-        public VideoListAdapter(ArrayList<VideoItem> dataSet) {
-            mDataset = dataSet;
+        public PlayListAdapter(LinkedHashMap<String, ArrayList<VideoItem>> playLists) {
+            mDataset = playLists;
+            mPlayListNames = new ArrayList<String>(playLists.keySet());
         }
 
         // Create new views (invoked by the layout manager)
         @Override
-        public VideoListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+        public PlayListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                                 int viewType) {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.video_item, parent, false);
+                    .inflate(R.layout.play_list_card_item, parent, false);
 
             ViewHolder vh = new ViewHolder(v);
             v.setOnClickListener(vh);
@@ -225,13 +256,15 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
         public void onBindViewHolder(ViewHolder holder, int position) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
-            holder.bindData(mDataset.get(position));
+            mPlayListNames = new ArrayList<String>(mDataset.keySet());
+            String playListName = mPlayListNames.get(position);
+            holder.bindData(playListName, mDataset.get(playListName));
         }
 
         // Return the size of your dataset (invoked by the layout manager)
         @Override
         public int getItemCount() {
-            return 3;
+            return mDataset.size();
         }
     }
 }

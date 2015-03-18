@@ -4,12 +4,14 @@ import com.argonmobile.chinagdl.data.FetchVideoListTask;
 import com.argonmobile.chinagdl.data.VideoItem;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class VideoItemsModel {
 
     private static VideoItemsModel mInstance;
 
     private ArrayList<VideoItem> mVideoItems = new ArrayList<VideoItem>();
+    private LinkedHashMap<String, ArrayList<VideoItem>> mPlayLists = new LinkedHashMap<String, ArrayList<VideoItem>>();
 
     private ArrayList<OnRequestObserver> mOnRequestObservers = new ArrayList<OnRequestObserver>();
 
@@ -63,8 +65,10 @@ public class VideoItemsModel {
             }
 
             @Override
-            public void onFetchSucceed(ArrayList<VideoItem> videoList) {
+            public void onFetchSucceed(ArrayList<VideoItem> videoList, LinkedHashMap<String, ArrayList<VideoItem>> playList) {
                 mIsRequesting = false;
+                mPlayLists.clear();
+                mPlayLists.putAll(playList);
                 fetchVideoListSucceed(videoList);
             }
         });
@@ -82,6 +86,10 @@ public class VideoItemsModel {
 
     public ArrayList<VideoItem> getAllVideos() {
         return mVideoItems;
+    }
+
+    public LinkedHashMap<String, ArrayList<VideoItem>> getPlayLists() {
+        return mPlayLists;
     }
 
     public interface OnRequestObserver {

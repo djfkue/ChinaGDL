@@ -131,6 +131,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
                 return VideoListFragment.newInstance();
+            } else if (position == 1) {
+                return PlayListFragment.newInstance();
             } else {
                 return PlaceholderFragment.newInstance(position + 1);
             }
@@ -147,11 +149,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Locale l = Locale.getDefault();
             switch (position) {
                 case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
+                    return getString(R.string.title_videos).toUpperCase(l);
                 case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
+                    return getString(R.string.title_playlist).toUpperCase(l);
                 case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
+                    return getString(R.string.title_home).toUpperCase(l);
             }
             return null;
         }

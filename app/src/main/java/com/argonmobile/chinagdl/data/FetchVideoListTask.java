@@ -165,6 +165,9 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
     protected void onPostExecute(Boolean success) {
         if (success) {
             mVideoItems.clear();
+            mPlayLists.clear();
+            ArrayList<VideoItem> defaultPlayList = new ArrayList<VideoItem>();
+            mPlayLists.put("Other", defaultPlayList);
             for (VideoItem videoItem : mVideoList.videos) {
                 if (videoItem.playlistname == null) {
                     mPlayLists.get("Other").add(videoItem);
@@ -183,7 +186,7 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
             mVideoItems.addAll(mVideoList.videos);
             Log.v(LOG_TAG, "onPostExecute Get videos: " + mVideoItems.size());
             if (mOnFetchVideoListListener != null) {
-                mOnFetchVideoListListener.onFetchSucceed(mVideoItems);
+                mOnFetchVideoListListener.onFetchSucceed(mVideoItems, mPlayLists);
             }
         } else {
             if (mOnFetchVideoListListener != null) {
@@ -203,6 +206,6 @@ public class FetchVideoListTask extends AsyncTask<Void, Void, Boolean> {
         public void onFetchStart();
         public void onFetchFailed();
         public void onFetchCancelled();
-        public void onFetchSucceed(ArrayList<VideoItem> videoList);
+        public void onFetchSucceed(ArrayList<VideoItem> videoList, LinkedHashMap<String, ArrayList<VideoItem>> playList);
     }
 }
