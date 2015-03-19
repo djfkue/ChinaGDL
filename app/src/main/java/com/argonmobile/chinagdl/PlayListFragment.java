@@ -189,6 +189,17 @@ public class PlayListFragment extends Fragment implements VideoItemsModel.OnRequ
 
                 mPlayListCount.setText("" + videoCount + " videos");
                 mPlayListName.setText(playListName);
+                if (playListName.contains("Android") || playListName.contains("Mobile")) {
+                    mPlayListName.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_android_grey600_24dp,
+                            0,
+                            0,
+                            0);
+                } else {
+                    mPlayListName.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_whatshot_grey600_24dp,
+                            0,
+                            0,
+                            0);
+                }
 
                 for (int i = 0; i < mVideoItemContainer.getChildCount(); i++) {
                     if (i < videoCount) {
