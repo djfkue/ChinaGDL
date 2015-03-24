@@ -193,8 +193,8 @@ public class VideoListFragment extends Fragment implements VideoItemsModel.OnReq
             public void onClick(View v) {
                 VideoItem item = mDataset.get(getPosition());
                 if ( null != item ) {
-                    Intent intent = new Intent(getActivity(), VideoViewBuffer.class);
-                    intent.putExtra(VideoViewBuffer.PATH,item.player);
+                    Intent intent = new Intent(getActivity(), VideoPlayActivity.class);
+                    intent.putExtra(VideoPlayActivity.VIDEO_PATH,item.player);
                     startActivity(intent);
                 }
             }

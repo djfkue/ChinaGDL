@@ -3,6 +3,7 @@ package com.argonmobile.chinagdl;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -71,6 +72,8 @@ public class VideoViewBuffer extends Activity implements OnInfoListener, OnBuffe
         public void onPrepared(MediaPlayer mediaPlayer) {
           // optional need Vitamio 4.0
           mediaPlayer.setPlaybackSpeed(1.0f);
+            Log.e("SD_TRACE", "video width: " + mediaPlayer.getVideoWidth());
+            Log.e("SD_TRACE", "video height: " + mediaPlayer.getVideoHeight());
         }
       });
     }
